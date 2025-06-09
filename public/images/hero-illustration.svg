@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800px" height="600px" viewBox="0 0 800 600" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background Elements -->
+    <circle cx="400" cy="300" r="250" fill="#E3F2FD" opacity="0.5"/>
+    <circle cx="400" cy="300" r="200" fill="#BBDEFB" opacity="0.3"/>
+    
+    <!-- Task Board -->
+    <rect x="200" y="150" width="400" height="300" rx="20" fill="#FFFFFF" stroke="#2196F3" stroke-width="4"/>
+    
+    <!-- Task Columns -->
+    <rect x="220" y="180" width="110" height="250" rx="10" fill="#E3F2FD"/>
+    <rect x="345" y="180" width="110" height="250" rx="10" fill="#E3F2FD"/>
+    <rect x="470" y="180" width="110" height="250" rx="10" fill="#E3F2FD"/>
+    
+    <!-- Column Headers -->
+    <text x="275" y="170" text-anchor="middle" font-family="Arial" font-size="14" fill="#2196F3">To Do</text>
+    <text x="400" y="170" text-anchor="middle" font-family="Arial" font-size="14" fill="#2196F3">In Progress</text>
+    <text x="525" y="170" text-anchor="middle" font-family="Arial" font-size="14" fill="#2196F3">Done</text>
+    
+    <!-- Task Cards -->
+    <rect x="230" y="200" width="90" height="60" rx="5" fill="#FFFFFF" stroke="#2196F3" stroke-width="2"/>
+    <rect x="230" y="270" width="90" height="60" rx="5" fill="#FFFFFF" stroke="#2196F3" stroke-width="2"/>
+    
+    <rect x="355" y="200" width="90" height="60" rx="5" fill="#FFFFFF" stroke="#2196F3" stroke-width="2"/>
+    
+    <rect x="480" y="200" width="90" height="60" rx="5" fill="#FFFFFF" stroke="#2196F3" stroke-width="2"/>
+    <rect x="480" y="270" width="90" height="60" rx="5" fill="#FFFFFF" stroke="#2196F3" stroke-width="2"/>
+    <rect x="480" y="340" width="90" height="60" rx="5" fill="#FFFFFF" stroke="#2196F3" stroke-width="2"/>
+    
+    <!-- Decorative Elements -->
+    <circle cx="150" cy="150" r="20" fill="#2196F3" opacity="0.3"/>
+    <circle cx="650" cy="450" r="30" fill="#2196F3" opacity="0.3"/>
+    <circle cx="700" cy="200" r="15" fill="#2196F3" opacity="0.3"/>
+    <circle cx="100" cy="400" r="25" fill="#2196F3" opacity="0.3"/>
+</svg> 
