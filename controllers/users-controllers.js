@@ -4,6 +4,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
@@ -315,8 +317,96 @@ const userLogin = async (req, res, next) => {
   });
 };
 
+// Forgot Password Controller
+const forgotPassword = async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) {
+    return next(new HttpError("Email is required", 400));
+  }
+  let user;
+  try {
+    user = await User.findOne({ email });
+  } catch (err) {
+    return next(new HttpError("Something went wrong, try again.", 500));
+  }
+  if (!user) {
+    return next(new HttpError("No user found with that email.", 404));
+  }
+  // Generate token
+  const token = crypto.randomBytes(32).toString("hex");
+  user.resetPasswordToken = token;
+  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+  try {
+    await user.save();
+  } catch (err) {
+    return next(new HttpError("Could not save reset token.", 500));
+  }
+  // Set up nodemailer
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+  const resetUrl = `${req.protocol}://${req.get("host")}/reset-password?token=${token}&email=${email}`;
+  const mailOptions = {
+    to: user.email,
+    from: process.env.EMAIL_USER,
+    subject: "Password Reset Request",
+    html: `<p>You requested a password reset.</p><p>Click <a href='${resetUrl}'>here</a> to reset your password. This link is valid for 1 hour.</p>`,
+  };
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    return next(new HttpError("Failed to send email.", 500));
+  }
+  res.status(200).json({ message: "Password reset email sent." });
+};
+
+// Reset Password Controller
+const resetPassword = async (req, res, next) => {
+  const { email, token, newPassword } = req.body;
+  if (!email || !token || !newPassword) {
+    return next(new HttpError("All fields are required.", 400));
+  }
+  let user;
+  try {
+    user = await User.findOne({
+      email,
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+  } catch (err) {
+    return next(new HttpError("Something went wrong.", 500));
+  }
+  if (!user) {
+    return next(new HttpError("Invalid or expired token.", 400));
+  }
+  if (newPassword.length < 6) {
+    return next(new HttpError("Password must be at least 6 characters.", 400));
+  }
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(newPassword, 12);
+  } catch (err) {
+    return next(new HttpError("Failed to hash password.", 500));
+  }
+  user.password = hashedPassword;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  try {
+    await user.save();
+  } catch (err) {
+    return next(new HttpError("Failed to update password.", 500));
+  }
+  res.status(200).json({ message: "Password has been reset successfully." });
+};
+
 exports.getAllUsers = getAllUsers;
 exports.getUserProfile = getUserProfile;
 exports.updateUserProfile = updateUserProfile;
 exports.userSignup = userSignup;
 exports.userLogin = userLogin;
+exports.forgotPassword = forgotPassword;
+exports.resetPassword = resetPassword;

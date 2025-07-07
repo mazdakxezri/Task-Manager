@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, require: true, minlength: 6 },
   image: { type: String, require: true },
   tasks: [{ type: mongoose.Types.ObjectId, require: true, ref: "Task" }],
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
 });
 
 userSchema.methods.comparePassword = async (candidatePassword) => {
