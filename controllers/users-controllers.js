@@ -317,7 +317,6 @@ const userLogin = async (req, res, next) => {
   });
 };
 
-// Forgot Password Controller
 const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
   if (!email) {
@@ -332,16 +331,17 @@ const forgotPassword = async (req, res, next) => {
   if (!user) {
     return next(new HttpError("No user found with that email.", 404));
   }
-  // Generate token
+
   const token = crypto.randomBytes(32).toString("hex");
   user.resetPasswordToken = token;
-  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+  user.resetPasswordExpires = Date.now() + 3600000;
   try {
     await user.save();
   } catch (err) {
     return next(new HttpError("Could not save reset token.", 500));
   }
-  // Set up nodemailer
+
+  // Make sure to set EMAIL_USER and EMAIL_PASS in your environment or .env file for email sending to work.
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -349,7 +349,9 @@ const forgotPassword = async (req, res, next) => {
       pass: process.env.EMAIL_PASS,
     },
   });
-  const resetUrl = `${req.protocol}://${req.get("host")}/reset-password?token=${token}&email=${email}`;
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/reset-password?token=${token}&email=${email}`;
   const mailOptions = {
     to: user.email,
     from: process.env.EMAIL_USER,
@@ -359,12 +361,13 @@ const forgotPassword = async (req, res, next) => {
   try {
     await transporter.sendMail(mailOptions);
   } catch (err) {
+    console.error(err);
     return next(new HttpError("Failed to send email.", 500));
   }
+
   res.status(200).json({ message: "Password reset email sent." });
 };
 
-// Reset Password Controller
 const resetPassword = async (req, res, next) => {
   const { email, token, newPassword } = req.body;
   if (!email || !token || !newPassword) {
